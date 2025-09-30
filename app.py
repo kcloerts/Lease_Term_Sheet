@@ -79,7 +79,7 @@ Generate the completed lease term sheet now:"""
         
         elif api_provider == "Google Gemini":
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
 
