@@ -1,0 +1,214 @@
+<!-- Cleaned Lease Term Sheet Template for Streamlit -->
+
+<p align="center"><b><u>{{TENANT_NAME}}</u></b></p>
+<p align="center"><b><u>{{SPACE_NAME}} LEASE TERM SHEET</u></b></p>
+
+<table>
+  <tr>
+    <th>Lease Dates</th>
+    <td>
+      {{LEASE_DATES}}<br>
+      <b>Commencement Date:</b> {{COMMENCEMENT_DATE}}<br>
+      <b>Delivery Date:</b> {{DELIVERY_DATE}}
+    </td>
+  </tr>
+  <tr>
+    <th>Parties</th>
+    <td>
+      <b>Landlord:</b> {{LANDLORD}}<br>
+      <b>Tenant:</b> {{TENANT}}<br>
+      <b>Guarantors:</b> {{GUARANTORS}}
+    </td>
+  </tr>
+  <tr>
+    <th>Premises</th>
+    <td>
+      <b>Address:</b> {{ADDRESS}}<br>
+      <b>Size:</b> Approx. {{SIZE}} sf.<br>
+      <b>Use:</b> {{USE}}<br>
+      <b>Condition:</b> {{CONDITION}}
+    </td>
+  </tr>
+  <tr>
+    <th>Term</th>
+    <td>{{TERM_YEARS}} Years</td>
+  </tr>
+  <tr>
+    <th>Option to Extend</th>
+    <td>
+      {{OPTION_TERMS}}, exercisable with at least {{MIN_NOTICE_DAYS}} days prior notice, not earlier than {{MAX_NOTICE_DAYS}} days prior notice.<br>
+      LL right to condition option on {{CONDITION_OPTION}}.
+    </td>
+  </tr>
+  <tr>
+    <th>Base Rent</th>
+    <td>
+      Payable on or before the {{RENT_DUE_DAY}} calendar day of each month.<br>
+      <table>
+        <tr>
+          <th>Months of Term</th>
+          <th>Minimum Monthly Rent</th>
+          <th>Minimum Annual Rent</th>
+          <th>% Increase</th>
+        </tr>
+        <tr>
+          <td>{{MONTHS_1}}</td><td>{{MONTHLY_RENT_1}}</td><td>{{ANNUAL_RENT_1}}</td><td>{{INCREASE_1}}</td>
+        </tr>
+        <tr>
+          <td>{{MONTHS_2}}</td><td>{{MONTHLY_RENT_2}}</td><td>{{ANNUAL_RENT_2}}</td><td>{{INCREASE_2}}</td>
+        </tr>
+        <!-- Add more rows as needed -->
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <th>Percentage Rent</th>
+    <td>
+      {{PERCENTAGE_RENT}}% of Tenant’s Gross Sales annually, payable each year that such gross sales exceed Breakpoint: {{BREAKPOINT}}<br>
+      <table>
+        <tr>
+          <th>Months of Term</th>
+          <th>Annual Gross Sales Threshold</th>
+        </tr>
+        <tr>
+          <td>{{PERCENT_MONTHS_1}}</td><td>{{SALES_THRESHOLD_1}}</td>
+        </tr>
+        <tr>
+          <td>{{PERCENT_MONTHS_2}}</td><td>{{SALES_THRESHOLD_2}}</td>
+        </tr>
+        <!-- Add more rows as needed -->
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <th>CAM</th>
+    <td>
+      Tenant share of Common Area Expenses (based on sf) payable on {{CAM_DUE_DAY}} day of each month, including costs of:
+      <ul>
+        <li>{{CAM_COST_1}}</li>
+        <li>{{CAM_COST_2}}</li>
+        <li>{{CAM_COST_3}}</li>
+        <li>{{CAM_COST_4}}</li>
+      </ul>
+      Excluded from Tenant’s proportional share of Common Area Expenses are costs for:
+      <ul>
+        <li>{{CAM_EXCLUSION_1}}</li>
+        <li>{{CAM_EXCLUSION_2}}</li>
+        <li>{{CAM_EXCLUSION_3}}</li>
+        <li>{{CAM_EXCLUSION_4}}</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Taxes</th>
+    <td>
+      <b>Includes:</b> {{TAX_INCLUDES}}<br>
+      <b>Excludes:</b> {{TAX_EXCLUDES}}<br>
+      <b>Due:</b> {{TAX_DUE}}
+    </td>
+  </tr>
+  <tr>
+    <th>Security Deposit</th>
+    <td>
+      ${{SECURITY_DEPOSIT}}, due {{SECURITY_DUE}}, returned {{SECURITY_RETURNED}}
+    </td>
+  </tr>
+  <tr>
+    <th>Total Due</th>
+    <td>
+      ${{TOTAL_DUE}} = First Monthly Installment of Rent (${{FIRST_RENT}}) + Security Deposit (${{SECURITY_DEPOSIT}}) + ...
+    </td>
+  </tr>
+  <tr>
+    <th>Other Fees</th>
+    <td>
+      <ul>
+        <li>${{OTHER_FEE_1}} – {{OTHER_FEE_DESC_1}}</li>
+        <li>${{OTHER_FEE_2}} – {{OTHER_FEE_DESC_2}}</li>
+        <li>${{OTHER_FEE_3}} – {{OTHER_FEE_DESC_3}}</li>
+        <li>${{OTHER_FEE_4}} – {{OTHER_FEE_DESC_4}}</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>TI Allowance</th>
+    <td>{{TI_ALLOWANCE}}</td>
+  </tr>
+  <tr>
+    <th>Utilities</th>
+    <td>
+      {{UTILITIES_TERMS}}<br>
+      <b>Trash:</b> {{TRASH}}<br>
+      <b>LL HVAC:</b> {{HVAC}}<br>
+      <b>Other:</b> {{OTHER_UTILITY}}
+    </td>
+  </tr>
+  <tr>
+    <th>Insurance</th>
+    <td>
+      1. {{INSURANCE_TYPE_1}} – ${{INSURANCE_LIMIT_1}} minimum limits<br>
+      2. {{INSURANCE_TYPE_2}} – ${{INSURANCE_LIMIT_2}} minimum limits<br>
+      3. {{INSURANCE_TYPE_3}} – ${{INSURANCE_LIMIT_3}} minimum limits<br>
+      4. {{INSURANCE_TYPE_4}} – ${{INSURANCE_LIMIT_4}} minimum limits
+    </td>
+  </tr>
+  <tr>
+    <th>Tenant Obligations</th>
+    <td>
+      <ul>
+        <li>{{TENANT_OBLIGATION_1}}</li>
+        <li>{{TENANT_OBLIGATION_2}}</li>
+        <li>{{TENANT_OBLIGATION_3}}</li>
+        <li>{{TENANT_OBLIGATION_4}}</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Assignment</th>
+    <td>{{ASSIGNMENT_TERMS}}</td>
+  </tr>
+  <tr>
+    <th>Radius</th>
+    <td>{{RADIUS}}-miles</td>
+  </tr>
+  <tr>
+    <th>Late Charge</th>
+    <td>${{LATE_CHARGE}} late charge for ...</td>
+  </tr>
+  <tr>
+    <th>Holding Over</th>
+    <td>{{HOLDING_OVER}}%</td>
+  </tr>
+  <tr>
+    <th>Tenant Defaults</th>
+    <td>{{TENANT_DEFAULTS}}</td>
+  </tr>
+  <tr>
+    <th>Governing Law</th>
+    <td>{{GOVERNING_LAW}}</td>
+  </tr>
+  <tr>
+    <th>Notices</th>
+    <td>
+      <b>Landlord Notice Address #1:</b><br>
+      {{LANDLORD_NOTICE_NAME}}<br>
+      {{LANDLORD_NOTICE_ADDR1}}<br>
+      {{LANDLORD_NOTICE_ADDR2}}<br>
+      Attn: {{LANDLORD_NOTICE_REP}}<br><br>
+      <b>Tenant:</b><br>
+      {{TENANT_NOTICE_NAME}}<br>
+      {{TENANT_NOTICE_ADDR1}}<br>
+      {{TENANT_NOTICE_ADDR2}}<br>
+      Attn: {{TENANT_NOTICE_REP}}<br><br>
+      <b>With a Copy To:</b><br>
+      {{COPY_TO_NAME}}<br>
+      {{COPY_TO_ADDR1}}<br>
+      {{COPY_TO_ADDR2}}<br>
+      Attn: {{COPY_TO_REP}}
+    </td>
+  </tr>
+  <tr>
+    <th>Compliance / ADA</th>
+    <td>Premises {{ADA_STATUS}} undergone an inspection by a Certified Access Specialist</td>
+  </tr>
+</table>
