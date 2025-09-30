@@ -4,8 +4,11 @@
 
 This application uses Google's Gemini API for AI-powered lease analysis. The following models are supported:
 
-### Free Tier Models
-- **gemini-1.5-flash** (Recommended) - Fast and efficient, ideal for most use cases
+### Current Model
+- **gemini-2.5-pro** (Default) - Advanced model with superior reasoning and analysis capabilities, ideal for complex lease document analysis
+
+### Alternative Models
+- **gemini-1.5-flash** - Fast and efficient, good for simpler use cases
 - **gemini-1.5-pro** - More powerful model (may have rate limits on free tier)
 - **gemini-pro** - Legacy model, still supported
 
@@ -18,7 +21,7 @@ If you receive an error like:
 Error generating term sheet: 404 models/gemini-1.5-flash-latest is not found for API version v1beta
 ```
 
-This means the model name is incorrect. The application has been updated to use the correct model name: `gemini-1.5-flash` (without the `-latest` suffix).
+This means the model name is incorrect. The application has been updated to use the correct model name: `gemini-2.5-pro`.
 
 ### Solution
 The latest version of the application uses the correct model name. Make sure you're running the latest version of the code.

@@ -76,9 +76,8 @@ Generate the completed lease term sheet now:"""
 
     try:
         genai.configure(api_key=api_key)
-        # Use gemini-1.5-flash instead of gemini-1.5-flash-latest
-        # The -latest suffix is not supported in the API
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Use gemini-2.5-pro for advanced lease analysis capabilities
+        model = genai.GenerativeModel('gemini-2.5-pro')
         
         full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
 
@@ -102,7 +101,7 @@ Generate the completed lease term sheet now:"""
                 models_str = "\n".join([f"  - {m}" for m in available_models])
                 return f"Error: The specified model is not available.\n\nAvailable models that support content generation:\n{models_str}\n\nOriginal error: {error_msg}"
             else:
-                return f"Error generating term sheet: {error_msg}\n\nTip: Common model names include 'gemini-1.5-flash', 'gemini-1.5-pro', or 'gemini-pro'"
+                return f"Error generating term sheet: {error_msg}\n\nTip: Common model names include 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro', or 'gemini-pro'"
         return f"Error generating term sheet: {error_msg}"
 
 # Main app
