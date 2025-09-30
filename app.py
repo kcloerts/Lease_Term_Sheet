@@ -13,7 +13,6 @@ st.set_page_config(
     layout="wide"
 )
 
-copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
 class HTMLTextExtractor(HTMLParser):
     """Extract text content from HTML"""
     def __init__(self):
@@ -53,8 +52,6 @@ def read_html(file):
     parser = HTMLTextExtractor()
     parser.feed(html_content)
     return parser.get_text()
-
-main
 
 def read_pdf(file):
     """Extract text from PDF file"""
@@ -301,7 +298,6 @@ def main():
     col1, col2 = st.columns(2)
     
     with col1:
- copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
         st.subheader("1️⃣ Template")
         use_custom_template = st.checkbox("Use custom template", value=False, 
                                           help="Check this to upload your own template instead of using the default")
@@ -310,9 +306,6 @@ def main():
             template_file = st.file_uploader(
                 "Upload template (PDF, DOCX, TXT, or HTM)",
                 type=['pdf', 'docx', 'txt', 'htm', 'html'],
-
-     
- main
                 key="template",
                 help="Upload your lease term sheet template that will be used as the format"
             )
@@ -322,11 +315,7 @@ def main():
         else:
             st.info("✅ Using default template")
             with st.expander("📄 View Default Template"):
-copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
                 st.text_area("Default Template Content", DEFAULT_TEMPLATE[:1000] + "..." if len(DEFAULT_TEMPLATE) > 1000 else DEFAULT_TEMPLATE, height=300, disabled=True)
-
-
-main
     
     with col2:
         st.subheader("2️⃣ Upload Commercial Lease")
