@@ -10,7 +10,7 @@ This folder contains sample documents you can use to test the Lease Term Sheet G
 ## How to Use
 
 1. Start the application: `streamlit run app.py`
-2. Enter your OpenAI API key in the sidebar
+2. Enter your Google Gemini API key in the sidebar (if not configured as default)
 3. Upload `sample_template.txt` as your template
 4. Upload `sample_lease.txt` as your commercial lease
 5. Click "Generate Term Sheet" to see the AI-generated result

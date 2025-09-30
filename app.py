@@ -3,7 +3,6 @@ import PyPDF2
 from docx import Document
 import io
 import os
-from openai import OpenAI
 import google.generativeai as genai
 
 # Set page configuration
@@ -38,8 +37,8 @@ def read_document(file):
     else:
         return file.read().decode('utf-8')
 
-def generate_term_sheet(template_text, lease_text, api_key, api_provider):
-    """Generate term sheet using OpenAI or Gemini API"""
+def generate_term_sheet(template_text, lease_text, api_key):
+    """Generate term sheet using Gemini API"""
     
     prompt = f"""You are a commercial real estate expert. You have been provided with:
 1. A lease term sheet template
@@ -64,35 +63,21 @@ Please generate a completed lease term sheet that:
 Generate the completed lease term sheet now:"""
 
     try:
-        if api_provider == "OpenAI":
-            client = OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=4000
-            )
-            return response.choices[0].message.content
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
-        elif api_provider == "Google Gemini":
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-pro')
-            
-            full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
+        full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
 
 {prompt}"""
-            
-            response = model.generate_content(
-                full_prompt,
-                generation_config=genai.types.GenerationConfig(
-                    temperature=0.3,
-                    max_output_tokens=4000,
-                )
+        
+        response = model.generate_content(
+            full_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.3,
+                max_output_tokens=4000,
             )
-            return response.text
+        )
+        return response.text
         
     except Exception as e:
         return f"Error generating term sheet: {str(e)}"
@@ -105,35 +90,44 @@ def main():
     and matching it to your template format.
     """)
     
-    # API Key input
+    # API Key configuration
     st.sidebar.header("Configuration")
     
-    # API Provider selection
-    api_provider = st.sidebar.selectbox(
-        "AI Provider",
-        ["OpenAI", "Google Gemini"],
-        help="Choose your AI provider"
-    )
+    # Try to get default API key from secrets
+    default_api_key = None
+    try:
+        if hasattr(st, 'secrets') and 'gemini' in st.secrets and 'api_key' in st.secrets['gemini']:
+            default_api_key = st.secrets['gemini']['api_key']
+    except Exception:
+        pass
     
-    # API Key input with dynamic label
-    if api_provider == "OpenAI":
-        api_key_label = "OpenAI API Key"
-        api_key_help = "Enter your OpenAI API key to enable AI-powered analysis"
-        api_link = "https://platform.openai.com/api-keys"
-        api_link_text = "OpenAI"
+    # API Key input - optional if default is available
+    if default_api_key:
+        st.sidebar.success("✅ Using default Gemini API key")
+        use_custom_key = st.sidebar.checkbox("Use custom API key", value=False)
+        if use_custom_key:
+            api_key = st.sidebar.text_input(
+                "Google Gemini API Key", 
+                type="password",
+                help="Enter your Google Gemini API key to override the default"
+            )
+            if not api_key:
+                api_key = default_api_key
+        else:
+            api_key = default_api_key
     else:
-        api_key_label = "Google Gemini API Key"
-        api_key_help = "Enter your Google Gemini API key to enable AI-powered analysis"
-        api_link = "https://makersuite.google.com/app/apikey"
-        api_link_text = "Google AI Studio"
-    
-    api_key = st.sidebar.text_input(api_key_label, type="password", help=api_key_help)
+        st.sidebar.info("💡 No default API key configured")
+        api_key = st.sidebar.text_input(
+            "Google Gemini API Key",
+            type="password",
+            help="Enter your Google Gemini API key to enable AI-powered analysis"
+        )
     
     if not api_key:
-        st.warning(f"⚠️ Please enter your {api_provider} API key in the sidebar to use this application.")
-        st.info(f"""
+        st.warning("⚠️ Please enter your Google Gemini API key in the sidebar to use this application.")
+        st.info("""
         To use this application:
-        1. Get an API key from [{api_link_text}]({api_link})
+        1. Get an API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
         2. Enter it in the sidebar
         3. Upload your documents
         """)
@@ -193,7 +187,7 @@ def main():
             with st.spinner("🤖 Analyzing lease and generating term sheet... This may take 30-60 seconds."):
                 try:
                     # Generate term sheet
-                    term_sheet = generate_term_sheet(template_text, lease_text, api_key, api_provider)
+                    term_sheet = generate_term_sheet(template_text, lease_text, api_key)
                     
                     st.success("✅ Term sheet generated successfully!")
                     
