@@ -4,6 +4,7 @@ from docx import Document
 import io
 import os
 import google.generativeai as genai
+from html.parser import HTMLParser
 
 # Set page configuration
 st.set_page_config(
@@ -11,6 +12,46 @@ st.set_page_config(
     page_icon="📄",
     layout="wide"
 )
+
+class HTMLTextExtractor(HTMLParser):
+    """Extract text content from HTML"""
+    def __init__(self):
+        super().__init__()
+        self.text = []
+        self.skip_tags = set()
+        
+    def handle_starttag(self, tag, attrs):
+        # Skip content inside style and script tags
+        if tag in ('style', 'script'):
+            self.skip_tags.add(tag)
+            
+    def handle_endtag(self, tag):
+        # Re-enable content extraction when closing style/script tags
+        self.skip_tags.discard(tag)
+        
+    def handle_data(self, data):
+        # Only add data if we're not inside a skip tag
+        if not self.skip_tags and data.strip():
+            self.text.append(data.strip())
+        
+    def get_text(self):
+        return '\n'.join(self.text)
+
+def read_html(file):
+    """Extract text from HTML file"""
+    if isinstance(file, str):
+        # File path
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+            html_content = f.read()
+    else:
+        # File-like object
+        html_content = file.read()
+        if isinstance(html_content, bytes):
+            html_content = html_content.decode('utf-8', errors='ignore')
+    
+    parser = HTMLTextExtractor()
+    parser.feed(html_content)
+    return parser.get_text()
 
 def read_pdf(file):
     """Extract text from PDF file"""
@@ -34,6 +75,8 @@ def read_document(file):
         return read_pdf(file)
     elif file.name.endswith('.docx'):
         return read_docx(file)
+    elif file.name.endswith('.htm') or file.name.endswith('.html'):
+        return read_html(file)
     else:
         return file.read().decode('utf-8')
 
@@ -63,6 +106,88 @@ def list_available_models(api_key):
         return models
     except Exception as e:
         return []
+
+# Load default template from file
+def load_default_template():
+    """Load the default template from Term Sheet Template_app.htm"""
+    template_path = os.path.join(os.path.dirname(__file__), "Term Sheet Template_app.htm")
+    try:
+        if os.path.exists(template_path):
+            return read_html(template_path)
+        else:
+            # Fallback to a basic template if file not found
+            return """COMMERCIAL LEASE TERM SHEET
+
+Property Address: [Address]
+Tenant Name: [Tenant Name]
+Landlord Name: [Landlord Name]
+
+LEASE TERMS:
+
+1. PREMISES
+   - Suite/Unit Number: [Suite]
+   - Rentable Square Feet: [SF]
+   - Use: [Permitted Use]
+
+2. LEASE TERM
+   - Commencement Date: [Date]
+   - Expiration Date: [Date]
+   - Term Length: [Years/Months]
+   - Option to Extend: [Yes/No, Terms]
+
+3. BASE RENT
+   - Initial Annual Base Rent: [Amount]
+   - Monthly Base Rent: [Amount]
+   - Rent Escalations: [Schedule]
+
+4. ADDITIONAL RENT
+   - Operating Expenses: [Details]
+   - Property Taxes: [Details]
+   - Utilities: [Responsibility]
+   - CAM Charges: [Details]
+
+5. SECURITY DEPOSIT
+   - Amount: [Amount]
+   - Terms: [Details]
+
+6. TENANT IMPROVEMENTS
+   - Tenant Improvement Allowance: [Amount]
+   - Construction Period: [Timeline]
+
+7. PARKING
+   - Number of Spaces: [Number]
+   - Type: [Reserved/Unreserved]
+   - Cost: [Amount if any]
+
+8. SPECIAL PROVISIONS
+   - [Any special terms or conditions]
+
+9. BROKER INFORMATION
+   - Landlord's Broker: [Name]
+   - Tenant's Broker: [Name]
+"""
+    except Exception as e:
+        # Return fallback template if there's an error
+        return """COMMERCIAL LEASE TERM SHEET
+
+Property Address: [Address]
+Tenant Name: [Tenant Name]
+Landlord Name: [Landlord Name]
+
+LEASE TERMS:
+
+1. PREMISES
+2. LEASE TERM
+3. BASE RENT
+4. ADDITIONAL RENT
+5. SECURITY DEPOSIT
+6. TENANT IMPROVEMENTS
+7. PARKING
+8. SPECIAL PROVISIONS
+9. BROKER INFORMATION
+"""
+
+DEFAULT_TEMPLATE = load_default_template()
 
 def generate_term_sheet(template_text, lease_text, api_key):
     """Generate term sheet using Gemini API"""
@@ -123,8 +248,8 @@ Generate the completed lease term sheet now:"""
 def main():
     st.title("📄 Lease Term Sheet Generator")
     st.markdown("""
-    This application helps you generate a lease term sheet by analyzing a commercial lease document 
-    and matching it to your template format.
+    This application helps you generate a lease term sheet by analyzing a commercial lease document.
+    A default template is provided, or you can upload your own custom template.
     """)
     
     # API Key configuration
@@ -173,16 +298,24 @@ def main():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("1️⃣ Upload Lease Term Sheet Template")
-        template_file = st.file_uploader(
-            "Upload template (PDF, DOCX, or TXT)",
-            type=['pdf', 'docx', 'txt'],
-            key="template",
-            help="Upload your lease term sheet template that will be used as the format"
-        )
+        st.subheader("1️⃣ Template")
+        use_custom_template = st.checkbox("Use custom template", value=False, 
+                                          help="Check this to upload your own template instead of using the default")
         
-        if template_file:
-            st.success(f"✅ Template uploaded: {template_file.name}")
+        if use_custom_template:
+            template_file = st.file_uploader(
+                "Upload template (PDF, DOCX, TXT, or HTM)",
+                type=['pdf', 'docx', 'txt', 'htm', 'html'],
+                key="template",
+                help="Upload your lease term sheet template that will be used as the format"
+            )
+            
+            if template_file:
+                st.success(f"✅ Template uploaded: {template_file.name}")
+        else:
+            st.info("✅ Using default template")
+            with st.expander("📄 View Default Template"):
+                st.text_area("Default Template Content", DEFAULT_TEMPLATE[:1000] + "..." if len(DEFAULT_TEMPLATE) > 1000 else DEFAULT_TEMPLATE, height=300, disabled=True)
     
     with col2:
         st.subheader("2️⃣ Upload Commercial Lease")
@@ -196,15 +329,20 @@ def main():
         if lease_file:
             st.success(f"✅ Lease uploaded: {lease_file.name}")
     
-    # Process documents when both are uploaded
-    if template_file and lease_file:
+    # Process documents when lease is uploaded
+    if lease_file:
         st.markdown("---")
         
         if st.button("🚀 Generate Term Sheet", type="primary"):
             with st.spinner("Reading documents..."):
                 try:
-                    # Read both documents
-                    template_text = read_document(template_file)
+                    # Get template text (use custom or default)
+                    if use_custom_template and template_file:
+                        template_text = read_document(template_file)
+                    else:
+                        template_text = DEFAULT_TEMPLATE
+                    
+                    # Read lease document
                     lease_text = read_document(lease_file)
                     
                     st.success("✅ Documents read successfully!")
@@ -244,7 +382,7 @@ def main():
                 except Exception as e:
                     st.error(f"❌ Error generating term sheet: {str(e)}")
     else:
-        st.info("👆 Please upload both a template and a lease document to begin.")
+        st.info("👆 Please upload a lease document to begin.")
 
 if __name__ == "__main__":
     main()
