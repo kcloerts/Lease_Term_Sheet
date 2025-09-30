@@ -43,23 +43,12 @@ def read_html(file):
     """Extract text from HTML file
     
     Args:
-        file: Either a file path (string) for internal templates only,
-              or a file-like object from user upload
+        file: A file-like object (from user upload or opened file)
     """
-    if isinstance(file, str):
-        # File path - only used for internal template loading
-        # Validate that this is our template file using absolute path comparison
-        expected_template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                                             "Term Sheet Template_app.html")
-        if os.path.abspath(file) != expected_template_path:
-            raise ValueError("Invalid template file path")
-        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            html_content = f.read()
-    else:
-        # File-like object from user upload
-        html_content = file.read()
-        if isinstance(html_content, bytes):
-            html_content = html_content.decode('utf-8', errors='ignore')
+    # Always expect a file-like object, never a path string
+    html_content = file.read()
+    if isinstance(html_content, bytes):
+        html_content = html_content.decode('utf-8', errors='ignore')
     
     parser = HTMLTextExtractor()
     parser.feed(html_content)
@@ -125,7 +114,8 @@ def load_default_template():
     template_path = os.path.join(os.path.dirname(__file__), "Term Sheet Template_app.html")
     try:
         if os.path.exists(template_path):
-            return read_html(template_path)
+            with open(template_path, 'r', encoding='utf-8', errors='ignore') as f:
+                return read_html(f)
         else:
             # Fallback to a basic template if file not found
             return """COMMERCIAL LEASE TERM SHEET
