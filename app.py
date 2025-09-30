@@ -109,8 +109,8 @@ def list_available_models(api_key):
 
 # Load default template from file
 def load_default_template():
-    """Load the default template from Term Sheet Template_app.htm"""
-    template_path = os.path.join(os.path.dirname(__file__), "Term Sheet Template_app.htm")
+    """Load the default template from Term Sheet Template_app.html"""
+    template_path = os.path.join(os.path.dirname(__file__), "Term Sheet Template_app.html")
     try:
         if os.path.exists(template_path):
             return read_html(template_path)
