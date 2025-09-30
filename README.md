@@ -9,7 +9,7 @@ A Streamlit application that automatically generates lease term sheets by analyz
 - 🤖 AI-powered analysis using Google Gemini
 - 🔑 Optional default API key configuration
 - 📋 Generates term sheets matching your template format
-- ⬇️ Download generated term sheets
+- ⬇️ Download generated term sheets as Word documents (.docx)
 - 🎨 Clean, user-friendly interface
 
 ## Prerequisites
@@ -61,7 +61,7 @@ streamlit run app.py
 1. **Document Reading**: The app reads both your template and lease documents, supporting PDF, DOCX, and TXT formats
 2. **AI Analysis**: Using Google Gemini, the app analyzes the commercial lease to extract key information
 3. **Term Sheet Generation**: The AI generates a term sheet that matches your template's structure and format
-4. **Download**: Export the generated term sheet for your use
+4. **Download**: Export the generated term sheet as a Word document (.docx) for easy editing and sharing
 
 ## Supported File Formats
 
@@ -77,7 +77,7 @@ If you configure a default API key, it's stored in `.streamlit/secrets.toml` whi
 
 - `streamlit`: Web application framework
 - `PyPDF2`: PDF document reading
-- `python-docx`: DOCX document reading
+- `python-docx`: DOCX document reading and writing
 - `google-generativeai`: Google Gemini API integration
 
 ## Troubleshooting
