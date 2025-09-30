@@ -1,14 +1,15 @@
 # Lease Term Sheet Generator
 
-A Streamlit application that automatically generates lease term sheets by analyzing commercial lease documents and matching them to your template format using Google Gemini AI.
+A Streamlit application that automatically generates lease term sheets by analyzing commercial lease documents using Google Gemini AI. A default template is built-in, or you can provide your own custom template.
 
 ## Features
 
-- 📄 Upload lease term sheet templates (PDF, DOCX, or TXT)
+- 📋 Built-in default lease term sheet template (`Term Sheet Template_app.htm`)
+- 📄 Optional custom template upload (PDF, DOCX, TXT, or HTM)
 - 📑 Upload commercial lease documents (PDF, DOCX, or TXT)
 - 🤖 AI-powered analysis using Google Gemini
 - 🔑 Optional default API key configuration
-- 📋 Generates term sheets matching your template format
+- 📋 Generates term sheets matching the template format
 - ⬇️ Download generated term sheets as Word documents (.docx)
 - 🎨 Clean, user-friendly interface
 
@@ -48,7 +49,10 @@ streamlit run app.py
 3. If you haven't configured a default API key:
    - Enter your Google Gemini API key in the sidebar
 
-4. Upload your lease term sheet template
+4. **Template Options**:
+   - By default, the app uses the built-in `Term Sheet Template_app.htm` template
+   - To use a custom template: Check "Use custom template" and upload your template file
+   - To view the default template: Click the "View Default Template" expander
 
 5. Upload the commercial lease document you want to analyze
 
@@ -58,16 +62,24 @@ streamlit run app.py
 
 ## How It Works
 
-1. **Document Reading**: The app reads both your template and lease documents, supporting PDF, DOCX, and TXT formats
-2. **AI Analysis**: Using Google Gemini, the app analyzes the commercial lease to extract key information
-3. **Term Sheet Generation**: The AI generates a term sheet that matches your template's structure and format
-4. **Download**: Export the generated term sheet as a Word document (.docx) for easy editing and sharing
+1. **Template Selection**: The app uses the built-in default template (`Term Sheet Template_app.htm`) or accepts a custom template (PDF, DOCX, TXT, or HTM)
+2. **Document Reading**: The app reads your lease document, supporting PDF, DOCX, and TXT formats
+3. **AI Analysis**: Using Google Gemini, the app analyzes the commercial lease to extract key information
+4. **Term Sheet Generation**: The AI generates a term sheet that matches the template's structure and format
+5. **Download**: Export the generated term sheet as a Word document (.docx) for easy editing and sharing
 
 ## Supported File Formats
 
+**For Lease Documents:**
 - PDF (.pdf)
 - Microsoft Word (.docx)
 - Plain Text (.txt)
+
+**For Templates:**
+- PDF (.pdf)
+- Microsoft Word (.docx)
+- Plain Text (.txt)
+- HTML (.htm, .html)
 
 ## Security Note
 
