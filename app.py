@@ -64,7 +64,7 @@ Generate the completed lease term sheet now:"""
 
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         
         full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
 
