@@ -6,6 +6,10 @@ import os
 import google.generativeai as genai
 from html.parser import HTMLParser
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
