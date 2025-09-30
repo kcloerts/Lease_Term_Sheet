@@ -37,6 +37,21 @@ def read_document(file):
     else:
         return file.read().decode('utf-8')
 
+def create_docx_from_text(text):
+    """Create a DOCX document from text"""
+    doc = Document()
+    
+    # Split text into lines and add to document
+    lines = text.split('\n')
+    for line in lines:
+        doc.add_paragraph(line)
+    
+    # Save to BytesIO object
+    docx_file = io.BytesIO()
+    doc.save(docx_file)
+    docx_file.seek(0)
+    return docx_file.getvalue()
+
 def list_available_models(api_key):
     """List available Gemini models"""
     try:
@@ -218,11 +233,12 @@ def main():
                     st.markdown(term_sheet)
                     
                     # Download button
+                    docx_data = create_docx_from_text(term_sheet)
                     st.download_button(
                         label="⬇️ Download Term Sheet",
-                        data=term_sheet,
-                        file_name="lease_term_sheet.txt",
-                        mime="text/plain"
+                        data=docx_data,
+                        file_name="lease_term_sheet.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
                     
                 except Exception as e:
