@@ -48,8 +48,10 @@ def read_html(file):
     """
     if isinstance(file, str):
         # File path - only used for internal template loading
-        # Validate that this is our template file
-        if not file.endswith('Term Sheet Template_app.html'):
+        # Validate that this is our template file using absolute path comparison
+        expected_template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+                                             "Term Sheet Template_app.html")
+        if os.path.abspath(file) != expected_template_path:
             raise ValueError("Invalid template file path")
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             html_content = f.read()
