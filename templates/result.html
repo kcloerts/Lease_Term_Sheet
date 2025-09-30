@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2><span class="emoji">📋</span> Generated Lease Term Sheet</h2>
+    <p class="help-text">Analyzed from: {{ lease_filename }}</p>
+</div>
+
+<div class="card">
+    <pre style="background: white; border: 1px solid #e0e0e0; padding: 20px;">{{ term_sheet }}</pre>
+</div>
+
+<div class="card" style="text-align: center;">
+    <a href="{{ url_for('download') }}" class="btn"><span class="emoji">⬇️</span> Download Term Sheet (.docx)</a>
+    <a href="{{ url_for('clear') }}" class="btn btn-secondary" style="margin-left: 10px;"><span class="emoji">🔄</span> Start New Analysis</a>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary" style="margin-left: 10px;"><span class="emoji">🏠</span> Back to Home</a>
+</div>
+{% endblock %}
