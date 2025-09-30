@@ -40,13 +40,21 @@ class HTMLTextExtractor(HTMLParser):
         return '\n'.join(self.text)
 
 def read_html(file):
-    """Extract text from HTML file"""
+    """Extract text from HTML file
+    
+    Args:
+        file: Either a file path (string) for internal templates only,
+              or a file-like object from user upload
+    """
     if isinstance(file, str):
-        # File path
+        # File path - only used for internal template loading
+        # Validate that this is our template file
+        if not file.endswith('Term Sheet Template_app.html'):
+            raise ValueError("Invalid template file path")
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             html_content = f.read()
     else:
-        # File-like object
+        # File-like object from user upload
         html_content = file.read()
         if isinstance(html_content, bytes):
             html_content = html_content.decode('utf-8', errors='ignore')
@@ -365,4 +373,6 @@ def clear():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Only enable debug mode if explicitly set in environment
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
