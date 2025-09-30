@@ -1,0 +1,49 @@
+COMMERCIAL LEASE TERM SHEET
+
+Property Address: [Address]
+Tenant Name: [Tenant Name]
+Landlord Name: [Landlord Name]
+
+LEASE TERMS:
+
+1. PREMISES
+   - Suite/Unit Number: [Suite]
+   - Rentable Square Feet: [SF]
+   - Use: [Permitted Use]
+
+2. LEASE TERM
+   - Commencement Date: [Date]
+   - Expiration Date: [Date]
+   - Term Length: [Years/Months]
+   - Option to Extend: [Yes/No, Terms]
+
+3. BASE RENT
+   - Initial Annual Base Rent: [Amount]
+   - Monthly Base Rent: [Amount]
+   - Rent Escalations: [Schedule]
+
+4. ADDITIONAL RENT
+   - Operating Expenses: [Details]
+   - Property Taxes: [Details]
+   - Utilities: [Responsibility]
+   - CAM Charges: [Details]
+
+5. SECURITY DEPOSIT
+   - Amount: [Amount]
+   - Terms: [Details]
+
+6. TENANT IMPROVEMENTS
+   - Tenant Improvement Allowance: [Amount]
+   - Construction Period: [Timeline]
+
+7. PARKING
+   - Number of Spaces: [Number]
+   - Type: [Reserved/Unreserved]
+   - Cost: [Amount if any]
+
+8. SPECIAL PROVISIONS
+   - [Any special terms or conditions]
+
+9. BROKER INFORMATION
+   - Landlord's Broker: [Name]
+   - Tenant's Broker: [Name]
