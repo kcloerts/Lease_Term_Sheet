@@ -38,6 +38,15 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Streamlit
+# Streamlit (keeping for reference)
 .streamlit/secrets.toml
 .streamlit/credentials.toml
+
+# Flask
+instance/
+.flaskenv
+*.pyc
+*.pyo
+
+# Uploads
+/tmp/uploads/

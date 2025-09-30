@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <p>This application helps you generate a lease term sheet by analyzing a commercial lease document. A default template is provided, or you can upload your own custom template.</p>
+</div>
+
+<div class="card">
+    <h2><span class="emoji">🔑</span> API Key Configuration</h2>
+    
+    {% if api_key_configured %}
+        <div class="alert alert-success">
+            <span class="emoji">✅</span> API key is configured
+        </div>
+        <p class="help-text">You can update your API key below if needed.</p>
+    {% else %}
+        <div class="alert alert-warning">
+            <span class="emoji">⚠️</span> Please configure your Gemini API key to use this application.
+        </div>
+        <p class="help-text">
+            To use this application:
+            <ol style="margin-left: 20px; margin-top: 10px;">
+                <li>Get an API key from <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+                <li>Enter it below</li>
+                <li>Upload your documents</li>
+            </ol>
+        </p>
+    {% endif %}
+    
+    <form method="POST" action="{{ url_for('set_api_key') }}">
+        <div class="form-group">
+            <label for="api_key">Google Gemini API Key:</label>
+            <input type="password" id="api_key" name="api_key" placeholder="Enter your API key">
+            <p class="help-text">Your API key is stored securely in your session and never saved to disk.</p>
+        </div>
+        <button type="submit"><span class="emoji">🔑</span> Set API Key</button>
+    </form>
+</div>
+
+{% if api_key_configured %}
+<form method="POST" action="{{ url_for('generate') }}" enctype="multipart/form-data">
+    <div class="two-columns">
+        <div class="card">
+            <h2><span class="emoji">1️⃣</span> Template</h2>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="use_custom_template" id="use_custom_template" onchange="toggleCustomTemplate()">
+                    Use custom template
+                </label>
+                <p class="help-text">Check this to upload your own template instead of using the default</p>
+            </div>
+            
+            <div class="form-group" id="custom_template_upload" style="display: none;">
+                <label for="template_file">Upload template (PDF, DOCX, TXT, or HTML):</label>
+                <input type="file" id="template_file" name="template_file" accept=".pdf,.docx,.txt,.htm,.html">
+            </div>
+            
+            <div id="default_template_info">
+                <div class="alert alert-info">
+                    <span class="emoji">✅</span> Using default template
+                </div>
+                <details class="expandable">
+                    <summary><span class="emoji">📄</span> View Default Template Preview</summary>
+                    <div class="expandable-content">
+                        <pre>{{ default_template_preview }}...</pre>
+                    </div>
+                </details>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><span class="emoji">2️⃣</span> Upload Commercial Lease</h2>
+            
+            <div class="form-group">
+                <label for="lease_file">Upload lease (PDF, DOCX, or TXT):</label>
+                <input type="file" id="lease_file" name="lease_file" accept=".pdf,.docx,.txt" required>
+                <p class="help-text">Upload the commercial lease document to analyze</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <button type="submit"><span class="emoji">🚀</span> Generate Term Sheet</button>
+    </div>
+</form>
+{% endif %}
+
+<script>
+function toggleCustomTemplate() {
+    const checkbox = document.getElementById('use_custom_template');
+    const uploadDiv = document.getElementById('custom_template_upload');
+    const defaultInfo = document.getElementById('default_template_info');
+    
+    if (checkbox.checked) {
+        uploadDiv.style.display = 'block';
+        defaultInfo.style.display = 'none';
+    } else {
+        uploadDiv.style.display = 'none';
+        defaultInfo.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}

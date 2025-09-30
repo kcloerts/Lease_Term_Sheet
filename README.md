@@ -1,20 +1,17 @@
 # Lease Term Sheet Generator
 
-A Streamlit application that automatically generates lease term sheets by analyzing commercial lease documents using Google Gemini AI. A default template is built-in, or you can provide your own custom template.
+A Flask web application that automatically generates lease term sheets by analyzing commercial lease documents using Google Gemini AI. A default template is built-in, or you can provide your own custom template.
 
 ## Features
 
-copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
-- 📋 Built-in default lease term sheet template (`Term Sheet Template_app.htm`)
-- 📄 Optional custom template upload (PDF, DOCX, TXT, or HTM)
-
- main
+- 📋 Built-in default lease term sheet template (`Term Sheet Template_app.html`)
+- 📄 Optional custom template upload (PDF, DOCX, TXT, or HTML)
 - 📑 Upload commercial lease documents (PDF, DOCX, or TXT)
 - 🤖 AI-powered analysis using Google Gemini
-- 🔑 Optional default API key configuration
+- 🔑 Flexible API key configuration (environment variable or web form)
 - 📋 Generates term sheets matching the template format
 - ⬇️ Download generated term sheets as Word documents (.docx)
-- 🎨 Clean, user-friendly interface
+- 🎨 Clean, responsive web interface
 
 ## Prerequisites
 
@@ -34,31 +31,39 @@ cd Lease_Term_Sheet
 pip install -r requirements.txt
 ```
 
-3. (Optional) Configure a default API key:
+3. (Optional) Configure a default API key as an environment variable:
 ```bash
-cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+export GEMINI_API_KEY="your-api-key-here"
 ```
-Then edit `.streamlit/secrets.toml` and add your Gemini API key. See [SETUP_API_KEY.md](SETUP_API_KEY.md) for details.
+
+Or create a `.env` file in the project root:
+```
+GEMINI_API_KEY=your-api-key-here
+SECRET_KEY=your-secret-key-here
+```
 
 ## Usage
 
-1. Start the Streamlit app:
+1. Start the Flask app:
 ```bash
-streamlit run app.py
+python app.py
 ```
 
-2. Open your browser and navigate to the URL shown in the terminal (typically `http://localhost:8501`)
+Or use the Flask CLI:
+```bash
+flask run
+```
 
-3. If you haven't configured a default API key:
-   - Enter your Google Gemini API key in the sidebar
+2. Open your browser and navigate to `http://localhost:5000`
+
+3. **Configure API Key**:
+   - Option 1: Set the `GEMINI_API_KEY` environment variable (recommended for production)
+   - Option 2: Enter your API key directly in the web interface (stored in session only)
 
 4. **Template Options**:
- copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
-   - By default, the app uses the built-in `Term Sheet Template_app.htm` template
-
- main
+   - By default, the app uses the built-in `Term Sheet Template_app.html` template
    - To use a custom template: Check "Use custom template" and upload your template file
-   - To view the default template: Click the "View Default Template" expander
+   - To view the default template: Click the "View Default Template" dropdown
 
 5. Upload the commercial lease document you want to analyze
 
@@ -68,11 +73,7 @@ streamlit run app.py
 
 ## How It Works
 
-copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
-1. **Template Selection**: The app uses the built-in default template (`Term Sheet Template_app.htm`) or accepts a custom template (PDF, DOCX, TXT, or HTM)
-
-
- main
+1. **Template Selection**: The app uses the built-in default template (`Term Sheet Template_app.html`) or accepts a custom template (PDF, DOCX, TXT, or HTML)
 2. **Document Reading**: The app reads your lease document, supporting PDF, DOCX, and TXT formats
 3. **AI Analysis**: Using Google Gemini, the app analyzes the commercial lease to extract key information
 4. **Term Sheet Generation**: The AI generates a term sheet that matches the template's structure and format
@@ -93,11 +94,15 @@ copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
 
 ## Security Note
 
-If you configure a default API key, it's stored in `.streamlit/secrets.toml` which is excluded from version control. You can also enter an API key directly in the app sidebar - it's only stored in your browser session and is never saved to disk. Always keep your API key secure and never share it publicly.
+API keys can be configured in two ways:
+1. **Environment Variable** (recommended): Set `GEMINI_API_KEY` in your environment or `.env` file
+2. **Web Form**: Enter directly in the application - stored only in the session (not saved to disk)
+
+Always keep your API key secure and never commit it to version control. The `.env` file is excluded from git via `.gitignore`.
 
 ## Dependencies
 
-- `streamlit`: Web application framework
+- `Flask`: Web application framework
 - `PyPDF2`: PDF document reading
 - `python-docx`: DOCX document reading and writing
 - `google-generativeai`: Google Gemini API integration
@@ -110,6 +115,13 @@ If you encounter errors related to Gemini models, see [GEMINI_MODELS.md](GEMINI_
 - List of supported models
 - Common error solutions
 - API key requirements
+
+### Port Already in Use
+
+If port 5000 is already in use, you can specify a different port:
+```bash
+flask run --port 8080
+```
 
 ## License
 

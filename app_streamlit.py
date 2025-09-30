@@ -1,19 +1,17 @@
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for, session
+import streamlit as st
 import PyPDF2
 from docx import Document
 import io
 import os
 import google.generativeai as genai
 from html.parser import HTMLParser
-from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
-
-# Ensure upload folder exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Set page configuration
+st.set_page_config(
+    page_title="Lease Term Sheet Generator",
+    page_icon="📄",
+    layout="wide"
+)
 
 class HTMLTextExtractor(HTMLParser):
     """Extract text content from HTML"""
@@ -71,13 +69,13 @@ def read_docx(file):
         text += paragraph.text + "\n"
     return text
 
-def read_document(file, filename):
+def read_document(file):
     """Read document based on file type"""
-    if filename.endswith('.pdf'):
+    if file.name.endswith('.pdf'):
         return read_pdf(file)
-    elif filename.endswith('.docx'):
+    elif file.name.endswith('.docx'):
         return read_docx(file)
-    elif filename.endswith('.htm') or filename.endswith('.html'):
+    elif file.name.endswith('.htm') or file.name.endswith('.html'):
         return read_html(file)
     else:
         return file.read().decode('utf-8')
@@ -95,7 +93,7 @@ def create_docx_from_text(text):
     docx_file = io.BytesIO()
     doc.save(docx_file)
     docx_file.seek(0)
-    return docx_file
+    return docx_file.getvalue()
 
 def list_available_models(api_key):
     """List available Gemini models"""
@@ -246,123 +244,145 @@ Generate the completed lease term sheet now:"""
                 return f"Error generating term sheet: {error_msg}\n\nTip: Common model names include 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro', or 'gemini-pro'"
         return f"Error generating term sheet: {error_msg}"
 
-@app.route('/')
-def index():
-    """Home page with upload form"""
-    # Get API key from environment variable or session
-    default_api_key = os.environ.get('GEMINI_API_KEY')
-    api_key_configured = default_api_key is not None or session.get('api_key') is not None
+# Main app
+def main():
+    st.title("📄 Lease Term Sheet Generator")
+    st.markdown("""
+    This application helps you generate a lease term sheet by analyzing a commercial lease document.
+    A default template is provided, or you can upload your own custom template.
+    """)
     
-    return render_template('index.html', 
-                         default_template_preview=DEFAULT_TEMPLATE[:1000],
-                         api_key_configured=api_key_configured)
-
-@app.route('/set_api_key', methods=['POST'])
-def set_api_key():
-    """Set the API key in session"""
-    api_key = request.form.get('api_key', '').strip()
-    if api_key:
-        session['api_key'] = api_key
-        flash('API key set successfully!', 'success')
+    # API Key configuration
+    st.sidebar.header("Configuration")
+    
+    # Try to get default API key from secrets
+    default_api_key = None
+    try:
+        default_api_key = st.secrets.get('gemini', {}).get('api_key', None)
+    except Exception:
+        pass
+    
+    # API Key input - optional if default is available
+    if default_api_key:
+        st.sidebar.success("✅ Using default Gemini API key")
+        use_custom_key = st.sidebar.checkbox("Use custom API key", value=False)
+        if use_custom_key:
+            api_key = st.sidebar.text_input(
+                "Google Gemini API Key", 
+                type="password",
+                help="Enter your Google Gemini API key to override the default"
+            )
+            if not api_key:
+                api_key = default_api_key
+        else:
+            api_key = default_api_key
     else:
-        flash('Please provide a valid API key.', 'error')
-    return redirect(url_for('index'))
-
-@app.route('/generate', methods=['POST'])
-def generate():
-    """Generate term sheet from uploaded files"""
-    # Get API key
-    api_key = session.get('api_key') or os.environ.get('GEMINI_API_KEY')
+        st.sidebar.info("💡 No default API key configured")
+        api_key = st.sidebar.text_input(
+            "Google Gemini API Key",
+            type="password",
+            help="Enter your Google Gemini API key to enable AI-powered analysis"
+        )
     
     if not api_key:
-        flash('Please configure your Gemini API key first.', 'error')
-        return redirect(url_for('index'))
+        st.warning("⚠️ Please enter your Google Gemini API key in the sidebar to use this application.")
+        st.info("""
+        To use this application:
+        1. Get an API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+        2. Enter it in the sidebar
+        3. Upload your documents
+        """)
+        return
     
-    # Check if lease file is uploaded
-    if 'lease_file' not in request.files:
-        flash('No lease file uploaded.', 'error')
-        return redirect(url_for('index'))
+    # Create two columns for file uploads
+    col1, col2 = st.columns(2)
     
-    lease_file = request.files['lease_file']
-    
-    if lease_file.filename == '':
-        flash('No lease file selected.', 'error')
-        return redirect(url_for('index'))
-    
-    try:
-        # Read lease document
-        lease_filename = secure_filename(lease_file.filename)
-        lease_text = read_document(lease_file, lease_filename)
+    with col1:
+        st.subheader("1️⃣ Template")
+        use_custom_template = st.checkbox("Use custom template", value=False, 
+                                          help="Check this to upload your own template instead of using the default")
         
-        # Get template text
-        use_custom_template = request.form.get('use_custom_template') == 'on'
-        
-        if use_custom_template and 'template_file' in request.files:
-            template_file = request.files['template_file']
-            if template_file.filename != '':
-                template_filename = secure_filename(template_file.filename)
-                template_text = read_document(template_file, template_filename)
-            else:
-                template_text = DEFAULT_TEMPLATE
+        if use_custom_template:
+            template_file = st.file_uploader(
+                "Upload template (PDF, DOCX, TXT, or HTM)",
+                type=['pdf', 'docx', 'txt', 'htm', 'html'],
+                key="template",
+                help="Upload your lease term sheet template that will be used as the format"
+            )
+            
+            if template_file:
+                st.success(f"✅ Template uploaded: {template_file.name}")
         else:
-            template_text = DEFAULT_TEMPLATE
-        
-        # Generate term sheet
-        term_sheet = generate_term_sheet(template_text, lease_text, api_key)
-        
-        # Store in session for display and download
-        session['term_sheet'] = term_sheet
-        session['lease_filename'] = lease_filename
-        
-        flash('Term sheet generated successfully!', 'success')
-        return redirect(url_for('result'))
-        
-    except Exception as e:
-        flash(f'Error processing documents: {str(e)}', 'error')
-        return redirect(url_for('index'))
-
-@app.route('/result')
-def result():
-    """Display the generated term sheet"""
-    term_sheet = session.get('term_sheet')
-    lease_filename = session.get('lease_filename', 'unknown')
+            st.info("✅ Using default template")
+            with st.expander("📄 View Default Template"):
+                st.text_area("Default Template Content", DEFAULT_TEMPLATE[:1000] + "..." if len(DEFAULT_TEMPLATE) > 1000 else DEFAULT_TEMPLATE, height=300, disabled=True)
     
-    if not term_sheet:
-        flash('No term sheet generated yet.', 'error')
-        return redirect(url_for('index'))
-    
-    return render_template('result.html', 
-                         term_sheet=term_sheet,
-                         lease_filename=lease_filename)
-
-@app.route('/download')
-def download():
-    """Download the generated term sheet as DOCX"""
-    term_sheet = session.get('term_sheet')
-    
-    if not term_sheet:
-        flash('No term sheet to download.', 'error')
-        return redirect(url_for('index'))
-    
-    try:
-        docx_file = create_docx_from_text(term_sheet)
-        return send_file(
-            docx_file,
-            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            as_attachment=True,
-            download_name='lease_term_sheet.docx'
+    with col2:
+        st.subheader("2️⃣ Upload Commercial Lease")
+        lease_file = st.file_uploader(
+            "Upload lease (PDF, DOCX, or TXT)",
+            type=['pdf', 'docx', 'txt'],
+            key="lease",
+            help="Upload the commercial lease document to analyze"
         )
-    except Exception as e:
-        flash(f'Error creating download: {str(e)}', 'error')
-        return redirect(url_for('result'))
+        
+        if lease_file:
+            st.success(f"✅ Lease uploaded: {lease_file.name}")
+    
+    # Process documents when lease is uploaded
+    if lease_file:
+        st.markdown("---")
+        
+        if st.button("🚀 Generate Term Sheet", type="primary"):
+            with st.spinner("Reading documents..."):
+                try:
+                    # Get template text (use custom or default)
+                    if use_custom_template and template_file:
+                        template_text = read_document(template_file)
+                    else:
+                        template_text = DEFAULT_TEMPLATE
+                    
+                    # Read lease document
+                    lease_text = read_document(lease_file)
+                    
+                    st.success("✅ Documents read successfully!")
+                    
+                    # Show preview in expanders
+                    with st.expander("📄 View Template Preview"):
+                        st.text_area("Template Content", template_text[:2000] + "..." if len(template_text) > 2000 else template_text, height=200, disabled=True)
+                    
+                    with st.expander("📄 View Lease Preview"):
+                        st.text_area("Lease Content", lease_text[:2000] + "..." if len(lease_text) > 2000 else lease_text, height=200, disabled=True)
+                    
+                except Exception as e:
+                    st.error(f"❌ Error reading documents: {str(e)}")
+                    return
+            
+            with st.spinner("🤖 Analyzing lease and generating term sheet... This may take 30-60 seconds."):
+                try:
+                    # Generate term sheet
+                    term_sheet = generate_term_sheet(template_text, lease_text, api_key)
+                    
+                    st.success("✅ Term sheet generated successfully!")
+                    
+                    # Display result
+                    st.markdown("---")
+                    st.subheader("📋 Generated Lease Term Sheet")
+                    st.markdown(term_sheet)
+                    
+                    # Download button
+                    docx_data = create_docx_from_text(term_sheet)
+                    st.download_button(
+                        label="⬇️ Download Term Sheet",
+                        data=docx_data,
+                        file_name="lease_term_sheet.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    )
+                    
+                except Exception as e:
+                    st.error(f"❌ Error generating term sheet: {str(e)}")
+    else:
+        st.info("👆 Please upload a lease document to begin.")
 
-@app.route('/clear')
-def clear():
-    """Clear the session and start over"""
-    session.pop('term_sheet', None)
-    session.pop('lease_filename', None)
-    flash('Session cleared. You can start a new analysis.', 'info')
-    return redirect(url_for('index'))
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    main()
