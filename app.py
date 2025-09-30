@@ -96,8 +96,7 @@ def main():
     # Try to get default API key from secrets
     default_api_key = None
     try:
-        if hasattr(st, 'secrets') and 'gemini' in st.secrets and 'api_key' in st.secrets['gemini']:
-            default_api_key = st.secrets['gemini']['api_key']
+        default_api_key = st.secrets.get('gemini', {}).get('api_key', None)
     except Exception:
         pass
     
