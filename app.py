@@ -4,6 +4,7 @@ from docx import Document
 import io
 import os
 import google.generativeai as genai
+from html.parser import HTMLParser
 
 # Set page configuration
 st.set_page_config(
@@ -12,8 +13,113 @@ st.set_page_config(
     layout="wide"
 )
 
-# Hardcoded default template
-DEFAULT_TEMPLATE = """COMMERCIAL LEASE TERM SHEET
+copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
+class HTMLTextExtractor(HTMLParser):
+    """Extract text content from HTML"""
+    def __init__(self):
+        super().__init__()
+        self.text = []
+        self.skip_tags = set()
+        
+    def handle_starttag(self, tag, attrs):
+        # Skip content inside style and script tags
+        if tag in ('style', 'script'):
+            self.skip_tags.add(tag)
+            
+    def handle_endtag(self, tag):
+        # Re-enable content extraction when closing style/script tags
+        self.skip_tags.discard(tag)
+        
+    def handle_data(self, data):
+        # Only add data if we're not inside a skip tag
+        if not self.skip_tags and data.strip():
+            self.text.append(data.strip())
+        
+    def get_text(self):
+        return '\n'.join(self.text)
+
+def read_html(file):
+    """Extract text from HTML file"""
+    if isinstance(file, str):
+        # File path
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+            html_content = f.read()
+    else:
+        # File-like object
+        html_content = file.read()
+        if isinstance(html_content, bytes):
+            html_content = html_content.decode('utf-8', errors='ignore')
+    
+    parser = HTMLTextExtractor()
+    parser.feed(html_content)
+    return parser.get_text()
+
+main
+
+def read_pdf(file):
+    """Extract text from PDF file"""
+    pdf_reader = PyPDF2.PdfReader(file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text() + "\n"
+    return text
+
+def read_docx(file):
+    """Extract text from DOCX file"""
+    doc = Document(file)
+    text = ""
+    for paragraph in doc.paragraphs:
+        text += paragraph.text + "\n"
+    return text
+
+def read_document(file):
+    """Read document based on file type"""
+    if file.name.endswith('.pdf'):
+        return read_pdf(file)
+    elif file.name.endswith('.docx'):
+        return read_docx(file)
+    elif file.name.endswith('.htm') or file.name.endswith('.html'):
+        return read_html(file)
+    else:
+        return file.read().decode('utf-8')
+
+def create_docx_from_text(text):
+    """Create a DOCX document from text"""
+    doc = Document()
+    
+    # Split text into lines and add to document
+    lines = text.split('\n')
+    for line in lines:
+        doc.add_paragraph(line)
+    
+    # Save to BytesIO object
+    docx_file = io.BytesIO()
+    doc.save(docx_file)
+    docx_file.seek(0)
+    return docx_file.getvalue()
+
+def list_available_models(api_key):
+    """List available Gemini models"""
+    try:
+        genai.configure(api_key=api_key)
+        models = []
+        for model in genai.list_models():
+            if 'generateContent' in model.supported_generation_methods:
+                models.append(model.name)
+        return models
+    except Exception as e:
+        return []
+
+# Load default template from file
+def load_default_template():
+    """Load the default template from Term Sheet Template_app.htm"""
+    template_path = os.path.join(os.path.dirname(__file__), "Term Sheet Template_app.htm")
+    try:
+        if os.path.exists(template_path):
+            return read_html(template_path)
+        else:
+            # Fallback to a basic template if file not found
+            return """COMMERCIAL LEASE TERM SHEET
 
 Property Address: [Address]
 Tenant Name: [Tenant Name]
@@ -63,58 +169,28 @@ LEASE TERMS:
    - Landlord's Broker: [Name]
    - Tenant's Broker: [Name]
 """
-
-def read_pdf(file):
-    """Extract text from PDF file"""
-    pdf_reader = PyPDF2.PdfReader(file)
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text() + "\n"
-    return text
-
-def read_docx(file):
-    """Extract text from DOCX file"""
-    doc = Document(file)
-    text = ""
-    for paragraph in doc.paragraphs:
-        text += paragraph.text + "\n"
-    return text
-
-def read_document(file):
-    """Read document based on file type"""
-    if file.name.endswith('.pdf'):
-        return read_pdf(file)
-    elif file.name.endswith('.docx'):
-        return read_docx(file)
-    else:
-        return file.read().decode('utf-8')
-
-def create_docx_from_text(text):
-    """Create a DOCX document from text"""
-    doc = Document()
-    
-    # Split text into lines and add to document
-    lines = text.split('\n')
-    for line in lines:
-        doc.add_paragraph(line)
-    
-    # Save to BytesIO object
-    docx_file = io.BytesIO()
-    doc.save(docx_file)
-    docx_file.seek(0)
-    return docx_file.getvalue()
-
-def list_available_models(api_key):
-    """List available Gemini models"""
-    try:
-        genai.configure(api_key=api_key)
-        models = []
-        for model in genai.list_models():
-            if 'generateContent' in model.supported_generation_methods:
-                models.append(model.name)
-        return models
     except Exception as e:
-        return []
+        # Return fallback template if there's an error
+        return """COMMERCIAL LEASE TERM SHEET
+
+Property Address: [Address]
+Tenant Name: [Tenant Name]
+Landlord Name: [Landlord Name]
+
+LEASE TERMS:
+
+1. PREMISES
+2. LEASE TERM
+3. BASE RENT
+4. ADDITIONAL RENT
+5. SECURITY DEPOSIT
+6. TENANT IMPROVEMENTS
+7. PARKING
+8. SPECIAL PROVISIONS
+9. BROKER INFORMATION
+"""
+
+DEFAULT_TEMPLATE = load_default_template()
 
 def generate_term_sheet(template_text, lease_text, api_key):
     """Generate term sheet using Gemini API"""
@@ -225,18 +301,18 @@ def main():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("1️⃣ Lease Term Sheet Template")
-        use_custom_template = st.checkbox(
-            "Use custom template", 
-            value=False,
-            help="Check this to upload your own template. Otherwise, the default template will be used."
-        )
+ copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
+        st.subheader("1️⃣ Template")
+        use_custom_template = st.checkbox("Use custom template", value=False, 
+                                          help="Check this to upload your own template instead of using the default")
         
-        template_file = None
         if use_custom_template:
             template_file = st.file_uploader(
-                "Upload template (PDF, DOCX, or TXT)",
-                type=['pdf', 'docx', 'txt'],
+                "Upload template (PDF, DOCX, TXT, or HTM)",
+                type=['pdf', 'docx', 'txt', 'htm', 'html'],
+
+     
+ main
                 key="template",
                 help="Upload your lease term sheet template that will be used as the format"
             )
@@ -246,7 +322,11 @@ def main():
         else:
             st.info("✅ Using default template")
             with st.expander("📄 View Default Template"):
-                st.text_area("Default Template Content", DEFAULT_TEMPLATE, height=300, disabled=True)
+copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
+                st.text_area("Default Template Content", DEFAULT_TEMPLATE[:1000] + "..." if len(DEFAULT_TEMPLATE) > 1000 else DEFAULT_TEMPLATE, height=300, disabled=True)
+
+
+main
     
     with col2:
         st.subheader("2️⃣ Upload Commercial Lease")
