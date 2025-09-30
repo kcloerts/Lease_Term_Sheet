@@ -4,6 +4,7 @@ from docx import Document
 import io
 import os
 from openai import OpenAI
+import google.generativeai as genai
 
 # Set page configuration
 st.set_page_config(
@@ -37,9 +38,8 @@ def read_document(file):
     else:
         return file.read().decode('utf-8')
 
-def generate_term_sheet(template_text, lease_text, api_key):
-    """Generate term sheet using OpenAI API"""
-    client = OpenAI(api_key=api_key)
+def generate_term_sheet(template_text, lease_text, api_key, api_provider):
+    """Generate term sheet using OpenAI or Gemini API"""
     
     prompt = f"""You are a commercial real estate expert. You have been provided with:
 1. A lease term sheet template
@@ -64,17 +64,36 @@ Please generate a completed lease term sheet that:
 Generate the completed lease term sheet now:"""
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=4000
-        )
+        if api_provider == "OpenAI":
+            client = OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=4000
+            )
+            return response.choices[0].message.content
         
-        return response.choices[0].message.content
+        elif api_provider == "Google Gemini":
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-pro')
+            
+            full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
+
+{prompt}"""
+            
+            response = model.generate_content(
+                full_prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.3,
+                    max_output_tokens=4000,
+                )
+            )
+            return response.text
+        
     except Exception as e:
         return f"Error generating term sheet: {str(e)}"
 
@@ -88,13 +107,33 @@ def main():
     
     # API Key input
     st.sidebar.header("Configuration")
-    api_key = st.sidebar.text_input("OpenAI API Key", type="password", help="Enter your OpenAI API key to enable AI-powered analysis")
+    
+    # API Provider selection
+    api_provider = st.sidebar.selectbox(
+        "AI Provider",
+        ["OpenAI", "Google Gemini"],
+        help="Choose your AI provider"
+    )
+    
+    # API Key input with dynamic label
+    if api_provider == "OpenAI":
+        api_key_label = "OpenAI API Key"
+        api_key_help = "Enter your OpenAI API key to enable AI-powered analysis"
+        api_link = "https://platform.openai.com/api-keys"
+        api_link_text = "OpenAI"
+    else:
+        api_key_label = "Google Gemini API Key"
+        api_key_help = "Enter your Google Gemini API key to enable AI-powered analysis"
+        api_link = "https://makersuite.google.com/app/apikey"
+        api_link_text = "Google AI Studio"
+    
+    api_key = st.sidebar.text_input(api_key_label, type="password", help=api_key_help)
     
     if not api_key:
-        st.warning("⚠️ Please enter your OpenAI API key in the sidebar to use this application.")
-        st.info("""
+        st.warning(f"⚠️ Please enter your {api_provider} API key in the sidebar to use this application.")
+        st.info(f"""
         To use this application:
-        1. Get an API key from [OpenAI](https://platform.openai.com/api-keys)
+        1. Get an API key from [{api_link_text}]({api_link})
         2. Enter it in the sidebar
         3. Upload your documents
         """)
@@ -154,7 +193,7 @@ def main():
             with st.spinner("🤖 Analyzing lease and generating term sheet... This may take 30-60 seconds."):
                 try:
                     # Generate term sheet
-                    term_sheet = generate_term_sheet(template_text, lease_text, api_key)
+                    term_sheet = generate_term_sheet(template_text, lease_text, api_key, api_provider)
                     
                     st.success("✅ Term sheet generated successfully!")
                     
