@@ -80,6 +80,15 @@ If you configure a default API key, it's stored in `.streamlit/secrets.toml` whi
 - `python-docx`: DOCX document reading
 - `google-generativeai`: Google Gemini API integration
 
+## Troubleshooting
+
+### Gemini API Model Errors
+
+If you encounter errors related to Gemini models, see [GEMINI_MODELS.md](GEMINI_MODELS.md) for:
+- List of supported models
+- Common error solutions
+- API key requirements
+
 ## License
 
 This project is open source and available for use.
