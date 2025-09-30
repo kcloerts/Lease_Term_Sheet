@@ -50,3 +50,6 @@ instance/
 
 # Uploads
 /tmp/uploads/
+
+# Test files
+test_app.py
