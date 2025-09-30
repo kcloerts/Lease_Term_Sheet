@@ -4,8 +4,11 @@ A Streamlit application that automatically generates lease term sheets by analyz
 
 ## Features
 
+copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
 - 📋 Built-in default lease term sheet template (`Term Sheet Template_app.htm`)
 - 📄 Optional custom template upload (PDF, DOCX, TXT, or HTM)
+
+ main
 - 📑 Upload commercial lease documents (PDF, DOCX, or TXT)
 - 🤖 AI-powered analysis using Google Gemini
 - 🔑 Optional default API key configuration
@@ -50,7 +53,10 @@ streamlit run app.py
    - Enter your Google Gemini API key in the sidebar
 
 4. **Template Options**:
+ copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
    - By default, the app uses the built-in `Term Sheet Template_app.htm` template
+
+ main
    - To use a custom template: Check "Use custom template" and upload your template file
    - To view the default template: Click the "View Default Template" expander
 
@@ -62,7 +68,11 @@ streamlit run app.py
 
 ## How It Works
 
+copilot/fix-ac37161a-44b2-4617-bc87-5e767d6d98ed
 1. **Template Selection**: The app uses the built-in default template (`Term Sheet Template_app.htm`) or accepts a custom template (PDF, DOCX, TXT, or HTM)
+
+
+ main
 2. **Document Reading**: The app reads your lease document, supporting PDF, DOCX, and TXT formats
 3. **AI Analysis**: Using Google Gemini, the app analyzes the commercial lease to extract key information
 4. **Term Sheet Generation**: The AI generates a term sheet that matches the template's structure and format
