@@ -37,6 +37,18 @@ def read_document(file):
     else:
         return file.read().decode('utf-8')
 
+def list_available_models(api_key):
+    """List available Gemini models"""
+    try:
+        genai.configure(api_key=api_key)
+        models = []
+        for model in genai.list_models():
+            if 'generateContent' in model.supported_generation_methods:
+                models.append(model.name)
+        return models
+    except Exception as e:
+        return []
+
 def generate_term_sheet(template_text, lease_text, api_key):
     """Generate term sheet using Gemini API"""
     
@@ -64,7 +76,8 @@ Generate the completed lease term sheet now:"""
 
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        # Use gemini-2.5-pro for advanced lease analysis capabilities
+        model = genai.GenerativeModel('gemini-2.5-pro')
         
         full_prompt = f"""You are an expert commercial real estate attorney specializing in lease analysis and term sheet creation.
 
@@ -80,7 +93,16 @@ Generate the completed lease term sheet now:"""
         return response.text
         
     except Exception as e:
-        return f"Error generating term sheet: {str(e)}"
+        error_msg = str(e)
+        # If model not found, try to list available models
+        if "not found" in error_msg.lower() or "not supported" in error_msg.lower():
+            available_models = list_available_models(api_key)
+            if available_models:
+                models_str = "\n".join([f"  - {m}" for m in available_models])
+                return f"Error: The specified model is not available.\n\nAvailable models that support content generation:\n{models_str}\n\nOriginal error: {error_msg}"
+            else:
+                return f"Error generating term sheet: {error_msg}\n\nTip: Common model names include 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro', or 'gemini-pro'"
+        return f"Error generating term sheet: {error_msg}"
 
 # Main app
 def main():
