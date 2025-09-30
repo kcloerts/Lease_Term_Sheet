@@ -1,13 +1,13 @@
 # Lease Term Sheet Generator
 
-A Streamlit application that automatically generates lease term sheets by analyzing commercial lease documents and matching them to your template format using AI.
+A Streamlit application that automatically generates lease term sheets by analyzing commercial lease documents and matching them to your template format using Google Gemini AI.
 
 ## Features
 
 - 📄 Upload lease term sheet templates (PDF, DOCX, or TXT)
 - 📑 Upload commercial lease documents (PDF, DOCX, or TXT)
-- 🤖 AI-powered analysis using OpenAI GPT-4 or Google Gemini
-- 🔄 Choose between OpenAI and Google Gemini AI providers
+- 🤖 AI-powered analysis using Google Gemini
+- 🔑 Optional default API key configuration
 - 📋 Generates term sheets matching your template format
 - ⬇️ Download generated term sheets
 - 🎨 Clean, user-friendly interface
@@ -15,9 +15,7 @@ A Streamlit application that automatically generates lease term sheets by analyz
 ## Prerequisites
 
 - Python 3.8 or higher
-- API key from one of the following AI providers:
-  - **OpenAI**: Get one at [OpenAI Platform](https://platform.openai.com/api-keys)
-  - **Google Gemini**: Get one at [Google AI Studio](https://makersuite.google.com/app/apikey)
+- Google Gemini API key: Get one at [Google AI Studio](https://makersuite.google.com/app/apikey)
 
 ## Installation
 
@@ -32,6 +30,12 @@ cd Lease_Term_Sheet
 pip install -r requirements.txt
 ```
 
+3. (Optional) Configure a default API key:
+```bash
+cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+```
+Then edit `.streamlit/secrets.toml` and add your Gemini API key. See [SETUP_API_KEY.md](SETUP_API_KEY.md) for details.
+
 ## Usage
 
 1. Start the Streamlit app:
@@ -41,9 +45,8 @@ streamlit run app.py
 
 2. Open your browser and navigate to the URL shown in the terminal (typically `http://localhost:8501`)
 
-3. In the sidebar:
-   - Select your preferred AI provider (OpenAI or Google Gemini)
-   - Enter your API key for the selected provider
+3. If you haven't configured a default API key:
+   - Enter your Google Gemini API key in the sidebar
 
 4. Upload your lease term sheet template
 
@@ -56,7 +59,7 @@ streamlit run app.py
 ## How It Works
 
 1. **Document Reading**: The app reads both your template and lease documents, supporting PDF, DOCX, and TXT formats
-2. **AI Analysis**: Using your chosen AI provider (OpenAI GPT-4 or Google Gemini), the app analyzes the commercial lease to extract key information
+2. **AI Analysis**: Using Google Gemini, the app analyzes the commercial lease to extract key information
 3. **Term Sheet Generation**: The AI generates a term sheet that matches your template's structure and format
 4. **Download**: Export the generated term sheet for your use
 
@@ -68,14 +71,13 @@ streamlit run app.py
 
 ## Security Note
 
-Your API key is only stored in your browser session and is never saved to disk. Always keep your API key secure and never share it publicly.
+If you configure a default API key, it's stored in `.streamlit/secrets.toml` which is excluded from version control. You can also enter an API key directly in the app sidebar - it's only stored in your browser session and is never saved to disk. Always keep your API key secure and never share it publicly.
 
 ## Dependencies
 
 - `streamlit`: Web application framework
 - `PyPDF2`: PDF document reading
 - `python-docx`: DOCX document reading
-- `openai`: OpenAI API integration
 - `google-generativeai`: Google Gemini API integration
 
 ## License
